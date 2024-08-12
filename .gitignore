@@ -1,0 +1,7 @@
+log/advisor/*
+log/coder/*
+log/evaluator/*
+log/final/*
+log/run_code/*
+__pycache__
+.vscode

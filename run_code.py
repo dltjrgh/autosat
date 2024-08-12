@@ -59,9 +59,9 @@ def run_codes(code, record, i=0):
                 file.write("\nRun bench: \n" + str(result))
             
             # Calculate the PAR-2 Score
-            for time in solved_times:
-                if time > 1499:
-                    time = 3000
+            for i in range(len(solved_times)):
+                if solved_times[i] > 1499:
+                    solved_times[i] = 3000
             
             # Append the final PAR-2 Score to the metrics list
             metric = (sum(solved_times) / len(solved_times))

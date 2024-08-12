@@ -124,10 +124,20 @@ void Solver::alloc_memory() {
 
 // start bump variables function
 void Solver::bump_var(int var, double coeff) {
-    if ((activity[var] += var_inc * coeff) > 1e100) {           // Update score and prevent float overflow
+    double success_rate = 0.5; // Assign a default success rate for probabilistic updates
+    double freq_adjustment = static_cast<double>(restarts) / (1 + restarts); // Frequency adjustment based on restarts
+
+    // Update activity based on success rate and frequency
+    activity[var] += var_inc * coeff * success_rate * freq_adjustment;
+
+    // Prevent float overflow
+    if (activity[var] > 1e100) {
         for (int i = 1; i <= vars; i++) activity[i] *= 1e-100;
-        var_inc *= 1e-100;}
-    if (vsids.inHeap(var)) vsids.update(var);                 // update heap
+        var_inc *= 1e-100;
+    }
+    
+    // Only update the heap if the variable is in it
+    if (vsids.inHeap(var)) vsids.update(var);
 }
 // end bump variables function
 

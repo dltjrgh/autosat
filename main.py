@@ -1,4 +1,3 @@
-from openai import OpenAI
 from run_code import *
 from call_advisor import *
 from call_coder import *
