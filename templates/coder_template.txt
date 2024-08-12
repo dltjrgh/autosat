@@ -6,9 +6,7 @@ Your goal is to improve {task} for the SAT solver, after reading and understandi
 
 To replace the original code:
 ’’’
-// start {task}
 {origin_target_code}
-// end {task}
 ’’’
 
 Tips:
@@ -16,7 +14,7 @@ Tips:
 2) Less execution time and lower PAR-2 mean better performance.
 3) Feel free to unleash your creativity and provide your improved and correct code. You may consult code from previous iterations for insights, but do not copy directly. (Pay attention to the correct namespace.)
 4) Your {task} code must be different from original codes.
-5) You can only modify the current {task} and use the existing external variables (e.g. variables that are defined in Solver).
+5) You must only modify the current {task} and must use the existing external variables (e.g. variables that are defined in Solver). Or you could define a new one inside the function, especially without making any erroneous code, if you want to use it.
 6) You cannot add new external variables outside the {task}.
 {other_tips}
 

@@ -2,15 +2,25 @@ from openai import OpenAI
 # from main import Record
 import json
 
-def get_eval(descr, dir, code, record, i):
+def get_eval(code, record, i):
   client = OpenAI(api_key = "sk-proj-7HyMsTDmzxf3nsOhAXpNT3BlbkFJTos4MEyT2gvHRha5wo1s")
-  # Parameters
-  current_task = "bump variables function"
+  
   f = record.get_rec()
   id = record.get_id() + i
 
+  # Parameters
+  if record.get_phase() == 0:
+    current_task = "bump variables function"
+    func = "bump_variables"
+  elif record.get_phase() == 1:
+    current_task = "restart function"
+    func = "restart"
+  if record.get_phase() == 0:
+    current_task = "rephase function"
+    func = "rephase"
+
   # origin_target_code
-  with open("templates/bump_variables.txt", "r") as file:
+  with open("templates/{func}.txt".format(func=func), "r") as file:
     original_target_code = file.read()
 
   # origin_key_code

@@ -4,12 +4,22 @@ from openai import OpenAI
 def get_codes(descr, dir, record, i):
   client = OpenAI(api_key = "sk-proj-7HyMsTDmzxf3nsOhAXpNT3BlbkFJTos4MEyT2gvHRha5wo1s")
   # Parameters
-  current_task = "bump variables function"
   f = record.get_rec()
   id = record.get_id() + i
 
+  # set task
+  if record.get_phase() == 0:
+    current_task = "bump variables function"
+    func = "bump_variables"
+  elif record.get_phase() == 1:
+    current_task = "restart function"
+    func = "restart"
+  elif record.get_phase() == 2:
+    current_task = "rephase function"
+    func = "rephase"
+
   # origin_target_code
-  with open("templates/bump_variables.txt", "r") as file:
+  with open("templates/{func}.txt".format(func=func), "r") as file:
     original_target_code = file.read()
 
   # origin_key_code
@@ -21,6 +31,8 @@ def get_codes(descr, dir, record, i):
     coder_template = file.read()
   
   with open("log/coder/{id}_query.log".format(id=id), "w") as file:
+    file.write("You are a SAT solver researcher trying to write the {task} to help the SAT solver escape from the local optimum.".format(task=current_task))
+    file.write("Past modifications with its analysis and evaluation metric (smaller is better) are as follows:\n{f}".format(f=f))
     file.write(coder_template.format(task=current_task, description=descr, modification_direction=dir, origin_target_code=original_target_code, origin_key_code=original_key_code, other_tips="\n"))
 
   try:

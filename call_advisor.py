@@ -8,7 +8,15 @@ def get_advice(record):
   client = OpenAI(api_key = "sk-proj-7HyMsTDmzxf3nsOhAXpNT3BlbkFJTos4MEyT2gvHRha5wo1s")
 
   # Parameters
-  current_task = "bump variables function"
+  if record.get_phase() == 0:
+    current_task = "bump variables function"
+    func = "bump_variables"
+  elif record.get_phase() == 1:
+    current_task = "restart function"
+    func = "restart"
+  if record.get_phase() == 0:
+    current_task = "rephase function"
+    func = "rephase"
 
   with open("templates/advisor_template.txt", "r") as file:
     advisor_template = file.read()
@@ -17,7 +25,7 @@ def get_advice(record):
     key_code = file.read()
 
   # origin_target_code
-  with open("templates/bump_variables.txt", "r") as file:
+  with open("templates/{func}.txt".format(func=func), "r") as file:
     original_target_code = file.read()
   
   with open("log/advisor/{id}_query.log".format(id=id), "w") as file:
