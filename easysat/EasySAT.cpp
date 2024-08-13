@@ -124,20 +124,29 @@ void Solver::alloc_memory() {
 
 // start bump variables function
 void Solver::bump_var(int var, double coeff) {
-    double success_rate = 0.5; // Assign a default success rate for probabilistic updates
-    double freq_adjustment = static_cast<double>(restarts) / (1 + restarts); // Frequency adjustment based on restarts
-
-    // Update activity based on success rate and frequency
-    activity[var] += var_inc * coeff * success_rate * freq_adjustment;
+    double increment = var_inc * coeff;  // Calculate the incremental change
+    activity[var] += increment;            // Update the activity score
 
     // Prevent float overflow
-    if (activity[var] > 1e100) {
-        for (int i = 1; i <= vars; i++) activity[i] *= 1e-100;
-        var_inc *= 1e-100;
+    if (activity[var] > 1e100) {           
+        for (int i = 1; i <= vars; i++) activity[i] *= 1e-100; // Normalize all activity scores
+        var_inc *= 1e-100; // Reduce the variable increment to prevent further overflow
+    }
+
+    // Introduce a phase boost mechanism for underperforming variables
+    if (activity[var] < 1e-10) {
+        activity[var] *= 10; // Boost the activity score of underperforming variables
+    }
+
+    // Update the saved phase based on the current variable activity
+    if (activity[var] > threshold) {
+        saved[var] = local_best[var]; // Save the best known phase
     }
     
-    // Only update the heap if the variable is in it
-    if (vsids.inHeap(var)) vsids.update(var);
+    // Update the VSIDS heap if the variable is in it
+    if (vsids.inHeap(var)) {
+        vsids.update(var);  // Refresh the variable's position in the heap
+    }
 }
 // end bump variables function
 

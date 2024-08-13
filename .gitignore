@@ -1,10 +1,2 @@
-log/advisor/*.log
-log/advisor/*.json
-log/coder/*.log
-log/coder/*.txt
-log/evaluator/*.log
-log/evaluator/*.json
-log/final/*.txt
-log/run_code/*.log
 __pycache__/*
 .vscode/*
