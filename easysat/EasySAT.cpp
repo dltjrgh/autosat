@@ -124,28 +124,34 @@ void Solver::alloc_memory() {
 
 // start bump variables function
 void Solver::bump_var(int var, double coeff) {
-    double increment = var_inc * coeff;  // Calculate the incremental change
-    activity[var] += increment;            // Update the activity score
+    // Update activity score using a weighted approach, influenced by previous adjustments
+    double increment = var_inc * coeff;  
+    activity[var] += increment;           
 
-    // Prevent float overflow
-    if (activity[var] > 1e100) {           
-        for (int i = 1; i <= vars; i++) activity[i] *= 1e-100; // Normalize all activity scores
-        var_inc *= 1e-100; // Reduce the variable increment to prevent further overflow
+    // Normalize and prevent float overflow
+    if (activity[var] > 1e100) {      
+        for (int i = 1; i <= vars; i++) activity[i] *= 1e-100; // Normalize all activities
+        var_inc *= 1e-100; // Scale back the variable increment
     }
 
-    // Introduce a phase boost mechanism for underperforming variables
+    // Boost underperforming variables to encourage exploration
     if (activity[var] < 1e-10) {
-        activity[var] *= 10; // Boost the activity score of underperforming variables
+        activity[var] *= 10; // Increase the score to promote exploration
     }
 
-    // Update the saved phase based on the current variable activity
+    // Update saved phase based on historical performance metrics
     if (activity[var] > threshold) {
-        saved[var] = local_best[var]; // Save the best known phase
+        saved[var] = local_best[var]; // Retain the phase that previously yielded better outcomes
+    }
+
+    // Update the heap structure
+    if (vsids.inHeap(var)) {
+        vsids.update(var);  // Refresh the position of the variable in the heap
     }
     
-    // Update the VSIDS heap if the variable is in it
-    if (vsids.inHeap(var)) {
-        vsids.update(var);  // Refresh the variable's position in the heap
+    // Implement a probabilistic retention mechanism for variable phases
+    if (rand() % 100 < 25) { // 25% chance to retain the current assignment
+        saved[var] = (value[var] == 1) ? 1 : -1; // Preserve the successful phase
     }
 }
 // end bump variables function
@@ -273,7 +279,7 @@ int Solver::decide() {
     return 0;
 }
 
-// start restart
+// start restart function
 void Solver::restart() {
     fast_lbd_sum = lbd_queue_size = lbd_queue_pos = 0;
     backtrack(0);
@@ -282,13 +288,13 @@ void Solver::restart() {
     else if ((phase_rand -= 5) < 0) for (int i = 1; i <= vars; i++) saved[i] = -local_best[i];
     else if ((phase_rand -= 20) < 0)for (int i = 1; i <= vars; i++) saved[i] = rand() % 2 ? 1 : -1;
 }
-// end restart
+// end restart function
 
-// start rephase
+// start rephase function
 void Solver::rephase() {
     rephases = 0, threshold *= 0.9, rephase_limit += 8192;
 }
-// end rephase
+// end rephase function
 
 void Solver::reduce() {
     backtrack(0);
